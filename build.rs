@@ -31,7 +31,7 @@ fn main() {
     // platform depended code for bluetooth stack on os-level
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     if target_os == "windows" {
-        build.file(src_dir.join("src/win32/win_hid.c"));
+        build.file(src_dir.join("src/os_win.c"));
         println!("cargo:rustc-link-lib=setupapi");
         println!("cargo:rustc-link-lib=hid");
     } else if target_os == "linux" {
