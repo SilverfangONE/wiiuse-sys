@@ -14,16 +14,26 @@ fn main() {
 
     println!("cargo:warning=wiiuse not found on system. Compile from sources...");
 
-    let src_dir = PathBuf::from("wiiuse-src");
-    let mut build = cc::Build::new();
+    let base_dir = PathBuf::from("wiiuse-src");
+    let src_dir = base_dir.join("src");
 
+    println!("cargo:rerun-if-changed={}", src_dir.display());
+
+    let mut build = cc::Build::new();
+    build.warnings(false);
     build.include(&src_dir);
 
     if let Ok(entries) = fs::read_dir(&src_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
             if path.is_file() && path.extension().map_or(false, |ext| ext == "c") {
-                build.file(path);
+                let filename = path.file_name().unwrap().to_string_lossy();
+
+                // WICHTIG: OS-spezifische Dateien in der Schleife ignorieren,
+                // da sie sonst auf dem falschen Betriebssystem Compile-Fehler werfen!
+                if filename != "os_win.c" && filename != "os_nix.c" && filename != "os_mac.c" {
+                    build.file(&path);
+                }
             }
         }
     }
@@ -31,12 +41,14 @@ fn main() {
     // platform depended code for bluetooth stack on os-level
     let target_os = env::var("CARGO_CFG_TARGET_OS").unwrap();
     if target_os == "windows" {
-        build.file(src_dir.join("src/os_win.c"));
+        build.file(src_dir.join("os_win.c"));
         println!("cargo:rustc-link-lib=setupapi");
         println!("cargo:rustc-link-lib=hid");
     } else if target_os == "linux" {
-        build.file(src_dir.join("src/os_nix.c"));
+        build.file(src_dir.join("os_nix.c"));
         println!("cargo:rustc-link-lib=bluetooth");
+    } else if target_os == "macos" {
+        build.file(src_dir.join("os_mac.c"));
     }
 
     build.compile("wiiuse");

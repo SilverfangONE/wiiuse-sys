@@ -2,6 +2,12 @@
 
 Building works out of the box, pre installed wiiuse lib is not needed.
 
+Except for initaliasing the submodule with:
+
+```bash
+git submodule update --init --recursive
+```
+
 ## System Requirements
 
 But Depdending on the System u need to install the C development headers for Bluetooth. 
