@@ -28,9 +28,6 @@ fn main() {
             let path = entry.path();
             if path.is_file() && path.extension().map_or(false, |ext| ext == "c") {
                 let filename = path.file_name().unwrap().to_string_lossy();
-
-                // WICHTIG: OS-spezifische Dateien in der Schleife ignorieren,
-                // da sie sonst auf dem falschen Betriebssystem Compile-Fehler werfen!
                 if filename != "os_win.c" && filename != "os_nix.c" && filename != "os_mac.c" {
                     build.file(&path);
                 }
