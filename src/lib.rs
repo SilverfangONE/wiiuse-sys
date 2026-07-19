@@ -13,7 +13,7 @@ pub trait WiimoteExt {
 
 impl WiimoteExt for wiimote_t {
     fn is_pressed(&self, button: u16) -> bool {
-        (self.btns & button) != 0
+        ((self.btns & button) != 0) || ((self.btns_held & button) != 0)
     }
 
     fn is_just_pressed(&self, button: u16) -> bool {
